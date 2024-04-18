@@ -21,11 +21,15 @@ resource "aws_instance" "ec2_instance" {
   sudo yum update -y
   sudo yum install docker -y
   sudo systemctl start docker
+  sudo snap install aws-cli
 
   while ! sudo docker ps; do
     echo 'Waiting for docker to be ready'
-    sudo snap install docker
-    sudo systemctl start snap.docker.dockerd.service
+    sleep 5
+  done
+
+  while ! aws --version; do
+    echo 'Waiting for aws to be ready'
     sleep 5
   done
 
