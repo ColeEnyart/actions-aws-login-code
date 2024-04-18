@@ -30,7 +30,10 @@ resource "aws_instance" "ec2_instance" {
   done
 
   aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-  sudo docker pull $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
+  while ! sudo docker image ls | grep -wq $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest; do
+    sudo docker pull $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
+    sleep 5
+  done
 
   while ! sudo docker container ls | grep -wq $BACKEND_CONTAINER; do
     sudo docker run -d -p 80:80 --name $BACKEND_CONTAINER --platform=linux/amd64/v2 $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME
