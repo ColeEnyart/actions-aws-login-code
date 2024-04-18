@@ -2,6 +2,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+locals {
+  timestamp = timestamp()
+}
+
 resource "aws_instance" "ec2_instance" {
   ami           = "ami-080e1f13689e07408" # you may need to update this
   instance_type = "t2.micro"
@@ -9,6 +13,7 @@ resource "aws_instance" "ec2_instance" {
   key_name = "sample-keypair" # update this
   user_data = <<-EOF
   #!/bin/bash
+  echo "Deployed at: ${local.timestamp}"
   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
   export REGION=us-east-1
   export BACKEND_CONTAINER=flask_api
