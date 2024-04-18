@@ -22,6 +22,13 @@ resource "aws_instance" "ec2_instance" {
   sudo yum install docker -y
   sudo systemctl start docker
 
+  while ! sudo docker ps; do
+    echo 'Waiting for docker to be ready'
+    sudo snap install docker
+    sudo systemctl start snap.docker.dockerd.service
+    sleep 5
+  done
+
   aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
   sudo docker pull $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
 
