@@ -3,10 +3,10 @@ provider "aws" {
 }
 
 resource "aws_instance" "ec2_instance" {
-  ami           = "ami-0d7a109bf30624c99" # you may need to update this
+  ami           = "ami-080e1f13689e07408" # you may need to update this
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
-  key_name = "example" # update this
+  key_name = "sample-keypair" # update this
   user_data = <<-EOF
   #!/bin/bash
   sudo yum update -y
