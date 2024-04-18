@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_instance" "ec2_instance" {
-  ami           = "ami-080e1f13689e07408" # you may need to update this
+  ami           = "ami-04e5276ebb8451442" # you may need to update this
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
   key_name = "sample-keypair" # update this
@@ -21,23 +21,9 @@ resource "aws_instance" "ec2_instance" {
   sudo yum update -y
   sudo yum install docker -y
   sudo systemctl start docker
-  sudo snap install aws-cli
-
-  while ! sudo docker ps; do
-    echo 'Waiting for docker to be ready'
-    sleep 5
-  done
-
-  while ! aws --version; do
-    echo 'Waiting for aws to be ready'
-    sleep 5
-  done
 
   aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-  while ! sudo docker image ls | grep -wq $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest; do
-    sudo docker pull $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
-    sleep 5
-  done
+  sudo docker pull $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:latest
 
   while ! sudo docker container ls | grep -wq $BACKEND_CONTAINER; do
     sudo docker run -d -p 80:80 --name $BACKEND_CONTAINER --platform=linux/amd64/v2 $AWS_ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME
